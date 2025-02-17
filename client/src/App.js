@@ -1,5 +1,7 @@
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 import Blogs from "./pages/Blogs";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -13,7 +15,7 @@ function App() {
       <Header />
       <Toaster />
       <Routes>
-        <Route path="/" element={<Blogs />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/my-blogs" element={<UserBlogs />} />
         <Route path="/blog-details/:id" element={<BlogDetails />} />
@@ -21,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      <Footer />
     </>
   );
 }

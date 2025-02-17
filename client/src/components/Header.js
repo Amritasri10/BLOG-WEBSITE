@@ -63,7 +63,7 @@ const Header = () => {
                   LinkComponent={Link}
                   to="/login"
                 >
-                  Login
+                  Create Blog
                 </Button>
                 <Button
                   sx={{ margin: 1, color: "white" }}
