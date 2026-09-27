@@ -1,21 +1,14 @@
-import { createSlice, configureStore } from "@reduxjs/toolkit";
-
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    isLogin: false,
-  },
-  reducers: {
-    login(state) {
-      state.isLogin = true;
-    },
-    logout(state) {
-      state.isLogin = false;
-    },
-  },
-});
-export const authActions = authSlice.actions;
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import blogReducer from "./slices/blogSlice";
 
 export const store = configureStore({
-  reducer: authSlice.reducer,
+  reducer: {
+    auth: authReducer,
+    blog: blogReducer,
+  },
 });
+
+// ── Selector helpers ──────────────────────────────────────────────────────────
+export const selectAuth = (state) => state.auth;
+export const selectBlog = (state) => state.blog;
