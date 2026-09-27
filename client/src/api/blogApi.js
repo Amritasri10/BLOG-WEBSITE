@@ -7,39 +7,41 @@ import {
   patchRequest,
 } from "../Helpers";
 
-/**
- * GET /blogs/all-blogs  (public)
- */
-export const getAllBlogsApi = () => noTokenGetRequest("/blogs/all-blogs");
+// ── Blogs ─────────────────────────────────────────────────────────────────────
 
-/**
- * GET /blogs/get-blog/:id  (public)
- */
-export const getSingleBlogApi = (id) => noTokenGetRequest(`/blogs/get-blog/${id}`);
+export const getAllBlogsApi = (params = "") =>
+  noTokenGetRequest(`/blogs/all-blogs${params}`);
 
-/**
- * GET /blogs/user-blogs/:userId  (public)
- */
-export const getUserBlogsApi = (userId) => noTokenGetRequest(`/blogs/user-blogs/${userId}`);
+export const getSingleBlogApi = (id) =>
+  noTokenGetRequest(`/blogs/get-blog/${id}`);
 
-/**
- * POST /blogs/create-blog  (protected)
- */
+export const getUserBlogsApi = (userId) =>
+  noTokenGetRequest(`/blogs/user-blogs/${userId}`);
+
 export const createBlogApi = (payload) =>
   postRequest({ url: "/blogs/create-blog", cred: payload });
 
-/**
- * PUT /blogs/update-blog/:id  (protected)
- */
 export const updateBlogApi = (id, payload) =>
   putRequest({ url: `/blogs/update-blog/${id}`, cred: payload });
 
-/**
- * DELETE /blogs/delete-blog/:id  (protected)
- */
-export const deleteBlogApi = (id) => deleteRequest(`/blogs/delete-blog/${id}`);
+export const deleteBlogApi = (id) =>
+  deleteRequest(`/blogs/delete-blog/${id}`);
 
-/**
- * PATCH /blogs/like/:id  (protected)
- */
-export const toggleLikeApi = (id) => patchRequest({ url: `/blogs/like/${id}`, cred: {} });
+export const toggleLikeApi = (id) =>
+  patchRequest({ url: `/blogs/like/${id}`, cred: {} });
+
+// ── Categories ────────────────────────────────────────────────────────────────
+
+export const getAllCategoriesApi = () =>
+  noTokenGetRequest("/categories");
+
+// ── Comments ──────────────────────────────────────────────────────────────────
+
+export const getCommentsByBlogApi = (blogId) =>
+  noTokenGetRequest(`/comments/${blogId}`);
+
+export const addCommentApi = (blogId, content) =>
+  postRequest({ url: `/comments/${blogId}`, cred: { content } });
+
+export const deleteCommentApi = (commentId) =>
+  deleteRequest(`/comments/${commentId}`);

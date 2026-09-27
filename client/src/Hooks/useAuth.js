@@ -4,9 +4,6 @@ import toast from "react-hot-toast";
 import { loginUser, registerUser, logout } from "../redux/slices/authSlice";
 import { selectAuth } from "../redux/store";
 
-/**
- * useAuth — wraps all auth actions with toast feedback and navigation.
- */
 const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -15,8 +12,8 @@ const useAuth = () => {
   const handleRegister = async (formData) => {
     const result = await dispatch(registerUser(formData));
     if (registerUser.fulfilled.match(result)) {
-      toast.success("Registered successfully! Please login.");
-      navigate("/login");
+      toast.success("Account created! Welcome 🎉");
+      navigate("/");          // auto-login → go home
     } else {
       toast.error(result.payload || "Registration failed");
     }
@@ -34,19 +31,11 @@ const useAuth = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    toast.success("Logged out successfully");
+    toast.success("Logged out");
     navigate("/login");
   };
 
-  return {
-    isLogin,
-    user,
-    loading,
-    error,
-    handleRegister,
-    handleLogin,
-    handleLogout,
-  };
+  return { isLogin, user, loading, error, handleRegister, handleLogin, handleLogout };
 };
 
 export default useAuth;

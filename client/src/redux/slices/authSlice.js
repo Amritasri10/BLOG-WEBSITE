@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginUserApi, registerUserApi, getProfileApi } from "../../api/authApi";
 
-// ── Async thunks ──────────────────────────────────────────────────────────────
-
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (payload, { rejectWithValue }) => {
@@ -39,7 +37,10 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
-// ── Slice ─────────────────────────────────────────────────────────────────────
+const persist = (user) => {
+  localStorage.setItem("authToken", user.authToken);
+  localStorage.setItem("userId", user._id);
+};
 
 const authSlice = createSlice({
   name: "auth",
@@ -53,20 +54,21 @@ const authSlice = createSlice({
     logout(state) {
       state.isLogin = false;
       state.user = null;
+      state.error = null;
       localStorage.removeItem("authToken");
       localStorage.removeItem("userId");
+      localStorage.removeItem("userActivity");
     },
   },
   extraReducers: (builder) => {
-    // ── Register ──────────────────────────────────────────────────────────────
+    // ── Register → auto-login ─────────────────────────────────────────────────
     builder
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(registerUser.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        // registration only → don't auto-login, redirect to /login
+        state.isLogin = true;
+        state.user = action.payload;
+        persist(action.payload);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -75,16 +77,12 @@ const authSlice = createSlice({
 
     // ── Login ─────────────────────────────────────────────────────────────────
     builder
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isLogin = true;
         state.user = action.payload;
-        localStorage.setItem("authToken", action.payload.authToken);
-        localStorage.setItem("userId", action.payload._id);
+        persist(action.payload);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -92,10 +90,9 @@ const authSlice = createSlice({
       });
 
     // ── Profile ───────────────────────────────────────────────────────────────
-    builder
-      .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
-      });
+    builder.addCase(fetchProfile.fulfilled, (state, action) => {
+      state.user = action.payload;
+    });
   },
 });
 

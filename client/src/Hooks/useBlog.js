@@ -9,19 +9,27 @@ import {
   updateBlog,
   deleteBlog,
 } from "../redux/slices/blogSlice";
+import { recordView } from "../redux/slices/profileSlice";
 import { selectBlog } from "../redux/store";
 
-/**
- * useBlog — wraps all blog actions with toast feedback and navigation.
- */
 const useBlog = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { blogs, userBlogs, currentBlog, loading, error } = useSelector(selectBlog);
 
-  const getAllBlogs = () => dispatch(fetchAllBlogs());
+  // params: optional query string like "?category=<id>&sortBy=recent"
+  const getAllBlogs = (params) => dispatch(fetchAllBlogs(params));
 
-  const getSingleBlog = (id) => dispatch(fetchSingleBlog(id));
+  const getSingleBlog = (id) => {
+    const result = dispatch(fetchSingleBlog(id));
+    return result;
+  };
+
+  // record a blog view in profile activity
+  const trackView = (blog) => {
+    if (!blog) return;
+    dispatch(recordView({ _id: blog._id, title: blog.title, image: blog.image, category: blog.category?.name }));
+  };
 
   const getMyBlogs = (userId) => dispatch(fetchUserBlogs(userId));
 
@@ -48,24 +56,16 @@ const useBlog = () => {
   const handleDeleteBlog = async (id) => {
     const result = await dispatch(deleteBlog(id));
     if (deleteBlog.fulfilled.match(result)) {
-      toast.success("Blog deleted successfully!");
+      toast.success("Blog deleted!");
     } else {
       toast.error(result.payload || "Failed to delete blog");
     }
   };
 
   return {
-    blogs,
-    userBlogs,
-    currentBlog,
-    loading,
-    error,
-    getAllBlogs,
-    getSingleBlog,
-    getMyBlogs,
-    handleCreateBlog,
-    handleUpdateBlog,
-    handleDeleteBlog,
+    blogs, userBlogs, currentBlog, loading, error,
+    getAllBlogs, getSingleBlog, trackView,
+    getMyBlogs, handleCreateBlog, handleUpdateBlog, handleDeleteBlog,
   };
 };
 
