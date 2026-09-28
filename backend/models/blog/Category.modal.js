@@ -8,11 +8,6 @@ const CategorySchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
-    slug: {
-      type: String,
-      lowercase: true,
-      unique: true,
-    },
     isActive: {
       type: Boolean,
       default: true,

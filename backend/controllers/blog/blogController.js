@@ -62,7 +62,7 @@ export const getAllBlogs = asyncHandler(async (req, res) => {
         pipeline: [{ $project: { username: 1, profilePic: 1, bio: 1 } }],
       },
     },
-    { $unwind: { path: "$author", preserveNullAndEmpty: true } },
+    { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "categories",
@@ -71,7 +71,7 @@ export const getAllBlogs = asyncHandler(async (req, res) => {
         as: "category",
       },
     },
-    { $unwind: { path: "$category", preserveNullAndEmpty: true } }
+    { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } }
   );
 
   const blogs = await Blog.aggregate(pipeline);

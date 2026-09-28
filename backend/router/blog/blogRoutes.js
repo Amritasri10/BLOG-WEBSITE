@@ -22,7 +22,7 @@ router.get("/author/:authorId", getAuthorBlogs);   // Author ki public blogs
 
 // ══ AUTHOR only ═══════════════════════════════════════════════════════════════
 router.post("/create", verifyJWT, isAuthor, createBlog);
-router.get("/my-blogs", verifyJWT, isAuthor, getMyBlogs);          // apne sare blogs (drafts bhi)
+router.get("/my-blogs", verifyJWT, isAuthor, getMyBlogs);
 router.patch("/toggle-publish/:id", verifyJWT, isAuthor, togglePublish); // publish/draft toggle
 
 // ══ AUTHOR (apna) + ADMIN (sab) ═══════════════════════════════════════════════
