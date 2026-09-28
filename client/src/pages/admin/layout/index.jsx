@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { LuLayoutDashboard, LuList, LuLogOut, LuMenu, LuMessageSquare, LuUsers, LuX } from "react-icons/lu";
-import { logout } from "../../redux/slices/authSlice";
-import { selectAuth } from "../../redux/store";
+import { LuLayoutDashboard, LuList, LuLogOut, LuMenu, LuMessageSquare, LuUsers, LuX, LuTag } from "react-icons/lu";
+import { logout } from "../../../redux/slices/authSlice";
+import { selectAuth } from "../../../redux/store";
 
 const navItems = [
-  { to: "/admin",          label: "Dashboard", icon: <LuLayoutDashboard className="h-4 w-4" />, end: true },
-  { to: "/admin/blogs",    label: "All Blogs",  icon: <LuList className="h-4 w-4" /> },
-  { to: "/admin/comments", label: "Comments",   icon: <LuMessageSquare className="h-4 w-4" /> },
-  { to: "/admin/users",    label: "Users",      icon: <LuUsers className="h-4 w-4" /> },
+  { to: "/admin",            label: "Dashboard",  icon: <LuLayoutDashboard className="h-4 w-4" />, end: true },
+  { to: "/admin/blogs",      label: "All Blogs",  icon: <LuList className="h-4 w-4" /> },
+  { to: "/admin/categories", label: "Categories", icon: <LuTag className="h-4 w-4" /> },
+  { to: "/admin/comments",   label: "Comments",   icon: <LuMessageSquare className="h-4 w-4" /> },
+  { to: "/admin/users",      label: "Users",      icon: <LuUsers className="h-4 w-4" /> },
 ];
 
 const AdminLayout = () => {

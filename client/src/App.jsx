@@ -25,11 +25,12 @@ import AuthorComments  from "./pages/author/AuthorComments";
 import AuthorProfileEdit from "./pages/author/AuthorProfileEdit";
 
 // ── Admin (protected) ──────────────────────────────────────────────────────
-import AdminLayout     from "./pages/admin/AdminLayout";
-import AdminDashboard  from "./pages/admin/AdminDashboard";
-import AdminListBlog   from "./pages/admin/AdminListBlog";
-import AdminComments   from "./pages/admin/AdminComments";
-import AdminUsers      from "./pages/admin/AdminUsers";
+import AdminLayout      from "./pages/admin/layout/index";
+import AdminDashboard   from "./pages/admin/dashboard/index";
+import AdminListBlog    from "./pages/admin/blogs/index";
+import AdminCategories  from "./pages/admin/categories/index";
+import AdminComments    from "./pages/admin/comments/index";
+import AdminUsers       from "./pages/admin/users/index";
 
 // ── Guards ─────────────────────────────────────────────────────────────────
 import AuthorGuard from "./components/guards/AuthorGuard";
@@ -85,6 +86,7 @@ function App() {
         >
           <Route index              element={<AdminDashboard />} />
           <Route path="blogs"       element={<AdminListBlog />} />
+          <Route path="categories"  element={<AdminCategories />} />
           <Route path="comments"    element={<AdminComments />} />
           <Route path="users"       element={<AdminUsers />} />
         </Route>

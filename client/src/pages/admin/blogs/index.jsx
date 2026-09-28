@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { fetchAllBlogs, togglePublish, deleteBlog } from "../../redux/slices/blogSlice";
-import { selectBlog } from "../../redux/store";
-import Loader from "../../components/Loader";
+import { fetchAllBlogs, togglePublish, deleteBlog } from "../../../redux/slices/blogSlice";
+import { selectBlog } from "../../../redux/store";
+import Loader from "../../../components/Loader";
 
 const AdminListBlog = () => {
   const dispatch = useDispatch();

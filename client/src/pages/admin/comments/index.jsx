@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { fetchComments, approveComment, removeComment } from "../../redux/slices/commentSlice";
-import { fetchAllBlogs } from "../../redux/slices/blogSlice";
-import { selectComment, selectBlog } from "../../redux/store";
-import Loader from "../../components/Loader";
+import { fetchComments, approveComment, removeComment } from "../../../redux/slices/commentSlice";
+import { fetchAllBlogs } from "../../../redux/slices/blogSlice";
+import { selectComment, selectBlog } from "../../../redux/store";
+import Loader from "../../../components/Loader";
 
 const AdminComments = () => {
   const dispatch = useDispatch();
@@ -12,7 +12,6 @@ const AdminComments = () => {
   const { blogs } = useSelector(selectBlog);
   const [filter, setFilter] = useState("all");
 
-  // Admin needs a blogId to fetch comments - fetch from all blogs' first few
   useEffect(() => {
     dispatch(fetchAllBlogs());
   }, [dispatch]);

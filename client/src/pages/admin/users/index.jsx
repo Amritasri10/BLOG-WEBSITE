@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import { fetchAllUsers, updateUserRole, deleteUser } from "../../redux/slices/adminSlice";
-import { selectAdmin } from "../../redux/store";
-import Loader from "../../components/Loader";
+import { fetchAllUsers, updateUserRole, deleteUser } from "../../../redux/slices/adminSlice";
+import { selectAdmin } from "../../../redux/store";
+import Loader from "../../../components/Loader";
 
 const ROLES = ["reader", "author", "admin"];
 

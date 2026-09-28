@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { KeyRound, Mail, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
-import { loginUser, clearError } from "../../redux/slices/authSlice";
-import { selectAuth } from "../../redux/store";
+import { loginUser, clearError } from "../../../redux/slices/authSlice";
+import { selectAuth } from "../../../redux/store";
 
 const AdminLoginPage = () => {
   const dispatch = useDispatch();

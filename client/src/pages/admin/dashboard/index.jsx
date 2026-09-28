@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LuFileText, LuMessageSquare, LuUsers, LuPencil } from "react-icons/lu";
 import toast from "react-hot-toast";
-import { fetchAdminStats } from "../../redux/slices/adminSlice";
-import { deleteBlog, togglePublish, fetchAllBlogs } from "../../redux/slices/blogSlice";
-import { selectAdmin, selectBlog } from "../../redux/store";
-import Loader from "../../components/Loader";
+import { fetchAdminStats } from "../../../redux/slices/adminSlice";
+import { deleteBlog, togglePublish, fetchAllBlogs } from "../../../redux/slices/blogSlice";
+import { selectAdmin, selectBlog } from "../../../redux/store";
+import Loader from "../../../components/Loader";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
