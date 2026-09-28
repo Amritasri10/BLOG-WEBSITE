@@ -35,7 +35,7 @@ export const getRequest = async (url) => {
   try {
     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}${url}`, {
       headers: {
-        Authorization: `${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
 
@@ -57,7 +57,7 @@ export const postRequest = async (props) => {
       props?.cred,
       {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     )
@@ -81,7 +81,7 @@ export const putRequest = async (props) => {
       props?.cred,
       {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     )
@@ -106,7 +106,7 @@ export const patchRequest = async (props) => {
       props?.cred,
       {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     )
@@ -127,7 +127,7 @@ export const deleteRequest = async (url) => {
   try {
     const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${url}`, {
       headers: {
-        Authorization: `${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
 

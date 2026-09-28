@@ -23,7 +23,10 @@ const useAuth = () => {
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
       toast.success("Logged in successfully!");
-      navigate("/");
+      const role = result.payload?.role;
+      if (role === "Admin") navigate("/admin");
+      else if (role === "Author") navigate("/author");
+      else navigate("/");
     } else {
       toast.error(result.payload || "Login failed");
     }

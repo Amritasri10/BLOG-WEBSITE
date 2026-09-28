@@ -31,7 +31,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     username,
     email,
     password: hashedPassword,
-    role: "User", // default reader
+    role: "User",
   });
 
   const token = user.generateAuthToken();
@@ -205,6 +205,43 @@ export const updatePassword = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new apiResponse(200, null, "Password updated successfully"));
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  BOOTSTRAP — Pehla Admin (sirf tab jab koi Admin DB me na ho)
+// ════════════════════════════════════════════════════════════════════════════
+
+// PUT /api/auth/self-promote
+// Logged-in user apne aap ko Admin bana sakta hai
+// SIRF tab kaam karta hai jab DB me koi bhi Admin na ho
+export const selfPromoteToAdmin = asyncHandler(async (req, res) => {
+  const adminExists = await User.findOne({ role: "Admin" });
+
+  if (adminExists) {
+    return res
+      .status(403)
+      .json(new apiResponse(403, null, "Admin already exists. Self-promotion not allowed."));
+  }
+
+  const user = await User.findById(req.user._id);
+  user.role = "Admin";
+  await user.save();
+
+  const token = user.generateAuthToken(); // naya token Admin role ke saath
+
+  return res.status(200).json(
+    new apiResponse(
+      200,
+      {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        authToken: token,
+      },
+      "You are now Admin"
+    )
+  );
 });
 
 // ════════════════════════════════════════════════════════════════════════════

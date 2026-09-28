@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { KeyRound, Mail, Phone, UserRound } from "lucide-react";
 import toast from "react-hot-toast";
@@ -9,14 +9,17 @@ import { selectAuth } from "../../redux/store";
 const AuthPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { isLogin, loading, error } = useSelector(selectAuth);
+  const { isLogin, user, loading, error } = useSelector(selectAuth);
   const [mode, setMode] = useState("login"); // login | signup
   const [form, setForm] = useState({ name: "", email: "", mobile: "", password: "" });
 
-  const redirectPath = location.state?.from || "/";
-
-  useEffect(() => { if (isLogin) navigate(redirectPath); }, [isLogin, navigate, redirectPath]);
+  useEffect(() => {
+    if (isLogin && user) {
+      if (user.role === "Admin") navigate("/admin");
+      else if (user.role === "Author") navigate("/author");
+      else navigate("/");
+    }
+  }, [isLogin, user, navigate]);
   useEffect(() => { if (error) { toast.error(error); dispatch(clearError()); } }, [error, dispatch]);
 
   const update = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));

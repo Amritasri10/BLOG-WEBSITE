@@ -1,14 +1,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { selectAuth } from "../../redux/store";
-import AdminLoginPage from "../../pages/admin/auth";
 
-// Shows AdminLoginPage if not logged in OR not an admin
+// Agar Admin nahi hai toh /auth pe redirect
 const AdminGuard = ({ children }) => {
   const { isLogin, user } = useSelector(selectAuth);
 
-  if (!isLogin || !user) return <AdminLoginPage />;
-  if (user.role !== "admin") return <AdminLoginPage />;
+  if (!isLogin || !user) return <Navigate to="/auth" replace />;
+  if (user.role !== "Admin") return <Navigate to="/auth" replace />;
 
   return children;
 };

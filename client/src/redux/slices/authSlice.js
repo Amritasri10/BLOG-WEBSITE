@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 import { registerUserApi, registerAuthorApi, loginUserApi, getProfileApi, updateProfileApi, updatePasswordApi } from "../../api/authApi";
 
 // ── Thunks ────────────────────────────────────────────────────────────────────
@@ -48,7 +49,7 @@ export const updatePassword = createAsyncThunk("auth/updatePassword", async (pay
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    isLogin: !!localStorage.getItem("authToken"),
+    isLogin: !!Cookies.get("TOKEN"),
     user: null,
     loading: false,
     error: null,
@@ -58,8 +59,8 @@ const authSlice = createSlice({
       state.isLogin = false;
       state.user = null;
       state.error = null;
+      Cookies.remove("TOKEN");
       localStorage.removeItem("authToken");
-      localStorage.removeItem("userActivity");
     },
     clearError(state) { state.error = null; },
   },
@@ -68,6 +69,8 @@ const authSlice = createSlice({
       state.loading = false;
       state.isLogin = true;
       state.user = payload;
+      // Cookie me save karo taaki Helpers/index.js use kar sake
+      Cookies.set("TOKEN", payload.authToken, { expires: 365 });
       localStorage.setItem("authToken", payload.authToken);
     };
 
@@ -90,6 +93,7 @@ const authSlice = createSlice({
       .addCase(fetchProfile.fulfilled, (s, { payload }) => { s.user = payload; })
       .addCase(fetchProfile.rejected,  (s) => {
         s.isLogin = false; s.user = null;
+        Cookies.remove("TOKEN");
         localStorage.removeItem("authToken");
       });
 

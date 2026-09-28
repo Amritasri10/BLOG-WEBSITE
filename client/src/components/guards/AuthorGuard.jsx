@@ -1,17 +1,17 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { selectAuth } from "../../redux/store";
-import AuthPage from "../../pages/login/AuthPage";
-import AuthorAuthPage from "../../pages/author/AuthorAuthPage";
 
-// Shows AuthorAuthPage if not logged in OR not an author/admin
+// Agar Author ya Admin nahi hai toh /auth pe redirect
 const AuthorGuard = ({ children }) => {
   const { isLogin, user } = useSelector(selectAuth);
 
-  if (!isLogin) return <AuthorAuthPage />;
-  if (user && user.role !== "author" && user.role !== "admin") return <AuthorAuthPage />;
+  if (!isLogin || !user) return <Navigate to="/auth" replace />;
+  if (user.role !== "Author" && user.role !== "Admin") return <Navigate to="/auth" replace />;
 
   return children;
 };
 
 export default AuthorGuard;
+
