@@ -1,29 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
 import { Box, Button, InputLabel, TextField, Typography, CircularProgress } from "@mui/material";
-import useBlog from "../hooks/useBlog";
+import useBlog from "../../hooks/useBlog";
 
-const BlogDetails = () => {
-  const { id } = useParams();
-  const { currentBlog, loading, getSingleBlog, handleUpdateBlog } = useBlog();
+const CreateBlog = () => {
+  const { handleCreateBlog, loading } = useBlog();
+  const userId = localStorage.getItem("userId");
 
   const [inputs, setInputs] = useState({ title: "", description: "", image: "" });
-
-  // Fetch blog on mount
-  useEffect(() => {
-    getSingleBlog(id);
-  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Populate form once blog loads
-  useEffect(() => {
-    if (currentBlog) {
-      setInputs({
-        title: currentBlog.title || "",
-        description: currentBlog.description || "",
-        image: currentBlog.image || "",
-      });
-    }
-  }, [currentBlog]);
 
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,16 +14,8 @@ const BlogDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleUpdateBlog(id, inputs);
+    handleCreateBlog({ ...inputs, user: userId });
   };
-
-  if (loading && !currentBlog) {
-    return (
-      <Box display="flex" justifyContent="center" mt={5}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -56,7 +31,7 @@ const BlogDetails = () => {
         marginTop="30px"
       >
         <Typography variant="h2" textAlign="center" fontWeight="bold" padding={3} color="gray">
-          Update Post
+          Create Blog
         </Typography>
 
         <InputLabel sx={{ mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" }}>Title</InputLabel>
@@ -79,16 +54,16 @@ const BlogDetails = () => {
 
         <Button
           type="submit"
-          color="warning"
+          color="primary"
           variant="contained"
           disabled={loading}
           startIcon={loading && <CircularProgress size={16} color="inherit" />}
         >
-          {loading ? "Updating..." : "Update"}
+          {loading ? "Creating..." : "Submit"}
         </Button>
       </Box>
     </form>
   );
 };
 
-export default BlogDetails;
+export default CreateBlog;

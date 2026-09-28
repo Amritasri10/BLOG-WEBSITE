@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../redux/store";
-import AdminLoginPage from "../../pages/admin/AdminLoginPage";
+import AdminLoginPage from "../../pages/admin/auth";
 
 // Shows AdminLoginPage if not logged in OR not an admin
 const AdminGuard = ({ children }) => {

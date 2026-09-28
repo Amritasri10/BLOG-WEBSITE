@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllAuthors } from "../redux/slices/authorSlice";
-import { selectAuthor } from "../redux/store";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import Loader from "../components/Loader";
+import { fetchAllAuthors } from "../../redux/slices/authorSlice";
+import { selectAuthor } from "../../redux/store";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 
 const AuthorsPage = () => {
   const dispatch = useDispatch();

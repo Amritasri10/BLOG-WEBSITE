@@ -2,13 +2,13 @@ import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { LuArrowUpRight, LuCalendar, LuSearch } from "react-icons/lu";
-import { fetchAllBlogs, setSearchInput } from "../redux/slices/blogSlice";
-import { selectBlog } from "../redux/store";
-import { BLOG_CATEGORIES } from "../constants/staticData";
-import Navbar from "../components/Navbar";
-import BlogCard from "../components/BlogCard";
-import Footer from "../components/Footer";
-import Loader from "../components/Loader";
+import { fetchAllBlogs, setSearchInput } from "../../redux/slices/blogSlice";
+import { selectBlog } from "../../redux/store";
+import { BLOG_CATEGORIES } from "../../constants/staticData";
+import Navbar from "../../components/Navbar";
+import BlogCard from "../../components/BlogCard";
+import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 import { useState } from "react";
 
 const formatDate = (d) =>

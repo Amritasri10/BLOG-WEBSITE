@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();

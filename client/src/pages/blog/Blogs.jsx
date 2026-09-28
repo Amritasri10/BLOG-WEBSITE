@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   Box, Chip, CircularProgress, Divider, Stack, Typography,
 } from "@mui/material";
-import BlogCard from "../components/BlogCard";
-import useBlog from "../Hooks/useBlog";
-import useCategory from "../Hooks/useCategory";
+import BlogCard from "../../components/BlogCard";
+import useBlog from "../../Hooks/useBlog";
+import useCategory from "../../Hooks/useCategory";
 
 const Blogs = () => {
   const { blogs, loading, getAllBlogs } = useBlog();

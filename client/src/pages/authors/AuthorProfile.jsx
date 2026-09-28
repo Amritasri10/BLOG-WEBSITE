@@ -3,14 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LuUserCheck, LuUserPlus } from "react-icons/lu";
 import toast from "react-hot-toast";
-import { fetchPublicAuthorProfile } from "../redux/slices/authorSlice";
-import { fetchAuthorBlogs } from "../redux/slices/blogSlice";
-import { toggleFollowAuthor, fetchFollowingAuthors } from "../redux/slices/userSlice";
-import { selectAuthor, selectBlog, selectUser, selectAuth } from "../redux/store";
-import Navbar from "../components/Navbar";
-import BlogCard from "../components/BlogCard";
-import Footer from "../components/Footer";
-import Loader from "../components/Loader";
+import { fetchPublicAuthorProfile } from "../../redux/slices/authorSlice";
+import { fetchAuthorBlogs } from "../../redux/slices/blogSlice";
+import { toggleFollowAuthor, fetchFollowingAuthors } from "../../redux/slices/userSlice";
+import { selectAuthor, selectBlog, selectUser, selectAuth } from "../../redux/store";
+import Navbar from "../../components/Navbar";
+import BlogCard from "../../components/BlogCard";
+import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 
 const AuthorProfile = () => {
   const { authorId } = useParams();

@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { KeyRound, Mail, Phone, UserRound } from "lucide-react";
 import toast from "react-hot-toast";
-import { loginUser, registerUser, clearError } from "../redux/slices/authSlice";
-import { selectAuth } from "../redux/store";
+import { loginUser, registerUser, clearError } from "../../redux/slices/authSlice";
+import { selectAuth } from "../../redux/store";
 
 const AuthPage = () => {
   const dispatch = useDispatch();

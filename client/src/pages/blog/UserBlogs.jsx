@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { CircularProgress, Box, Typography } from "@mui/material";
-import BlogCard from "../components/BlogCard";
-import useBlog from "../hooks/useBlog";
+import BlogCard from "../../components/BlogCard";
+import useBlog from "../../hooks/useBlog";
 
 const UserBlogs = () => {
   const { userBlogs, loading, error, getMyBlogs } = useBlog();

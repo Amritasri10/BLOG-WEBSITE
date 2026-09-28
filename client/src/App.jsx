@@ -8,13 +8,13 @@ import { selectAuth } from "./redux/store";
 import "quill/dist/quill.snow.css";
 
 // ── Pages ──────────────────────────────────────────────────────────────────
-import HomePage        from "./pages/HomePage";
-import BlogPage        from "./pages/BlogPage";
-import AuthPage        from "./pages/AuthPage";
-import AuthorsPage     from "./pages/AuthorsPage";
-import AuthorProfile   from "./pages/AuthorProfile";
-import ProfilePage     from "./pages/ProfilePage";
-import FollowingPage   from "./pages/FollowingPage";
+import HomePage        from "./pages/home/HomePage";
+import BlogPage        from "./pages/blog/BlogPage";
+import AuthPage        from "./pages/login/AuthPage";
+import AuthorsPage     from "./pages/authors/AuthorsPage";
+import AuthorProfile   from "./pages/authors/AuthorProfile";
+import ProfilePage     from "./pages/profile/ProfilePage";
+import FollowingPage   from "./pages/profile/FollowingPage";
 
 // ── Author (protected) ─────────────────────────────────────────────────────
 import AuthorLayout    from "./pages/author/AuthorLayout";

@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LuBookmark, LuHeart, LuUser, LuLogOut } from "react-icons/lu";
 import toast from "react-hot-toast";
-import { fetchProfile, updateProfile, logout } from "../redux/slices/authSlice";
-import { fetchSavedBlogs, fetchLikedBlogs } from "../redux/slices/userSlice";
-import { selectAuth, selectUser } from "../redux/store";
-import Navbar from "../components/Navbar";
-import BlogCard from "../components/BlogCard";
-import Footer from "../components/Footer";
-import Loader from "../components/Loader";
+import { fetchProfile, updateProfile, logout } from "../../redux/slices/authSlice";
+import { fetchSavedBlogs, fetchLikedBlogs } from "../../redux/slices/userSlice";
+import { selectAuth, selectUser } from "../../redux/store";
+import Navbar from "../../components/Navbar";
+import BlogCard from "../../components/BlogCard";
+import Footer from "../../components/Footer";
+import Loader from "../../components/Loader";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
