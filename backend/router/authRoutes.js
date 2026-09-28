@@ -10,6 +10,7 @@ import {
   getAllUsers,
   getUserById,
   updateUserRole,
+  selfPromoteToAdmin,
 } from "../controllers/authController.js";
 import { verifyJWT, isAdmin } from "../middlewares/authMiddleware.js";
 
@@ -24,6 +25,9 @@ router.post("/login", loginUser);                 // User / Author / Admin login
 router.get("/profile", verifyJWT, getProfile);
 router.patch("/update-profile", verifyJWT, updateProfile);
 router.patch("/update-password", verifyJWT, updatePassword);
+
+// ── BOOTSTRAP — pehla Admin banane ke liye (jaise hi 1 Admin ban jaaye, band ho jaata hai)
+router.put("/self-promote", verifyJWT, selfPromoteToAdmin);
 
 // ── ADMIN only ────────────────────────────────────────────────────────────────
 router.get("/users", verifyJWT, isAdmin, getAllUsers);              // sab users (filter by role)
