@@ -1,41 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllCategoriesApi } from "../../api/blogApi";
+import { getAllCategoriesApi, createCategoryApi, deleteCategoryApi } from "../../api/categoryApi";
 
-export const fetchAllCategories = createAsyncThunk(
-  "category/fetchAll",
-  async (_, { rejectWithValue }) => {
-    try {
-      const { data } = await getAllCategoriesApi();
-      // crudFactory returns { data: { data: [...] } }
-      return data?.data?.data || data?.data || [];
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch categories");
-    }
-  }
-);
+export const fetchAllCategories = createAsyncThunk("category/fetchAll", async (_, { rejectWithValue }) => { try { const { data } = await getAllCategoriesApi(); return data?.data?.data || data?.data || []; } catch (e) { return rejectWithValue(e.response?.data?.message || "Failed"); } });
+export const createCategory     = createAsyncThunk("category/create",   async (payload, { rejectWithValue }) => { try { const { data } = await createCategoryApi(payload); return data?.data; } catch (e) { return rejectWithValue(e.response?.data?.message || "Failed"); } });
+export const deleteCategory     = createAsyncThunk("category/delete",   async (id,      { rejectWithValue }) => { try { await deleteCategoryApi(id); return id; } catch (e) { return rejectWithValue(e.response?.data?.message || "Failed"); } });
 
 const categorySlice = createSlice({
   name: "category",
-  initialState: {
-    categories: [],
-    loading: false,
-    error: null,
-  },
+  initialState: { categories: [], loading: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllCategories.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllCategories.fulfilled, (state, action) => {
-        state.loading = false;
-        state.categories = action.payload;
-      })
-      .addCase(fetchAllCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+      .addCase(fetchAllCategories.pending,   (s) => { s.loading = true; s.error = null; })
+      .addCase(fetchAllCategories.fulfilled, (s, { payload }) => { s.loading = false; s.categories = payload; })
+      .addCase(fetchAllCategories.rejected,  (s, { payload }) => { s.loading = false; s.error = payload; })
+      .addCase(createCategory.fulfilled, (s, { payload }) => { if (payload) s.categories.push(payload); })
+      .addCase(deleteCategory.fulfilled, (s, { payload }) => { s.categories = s.categories.filter((c) => c._id !== payload); });
   },
 });
 

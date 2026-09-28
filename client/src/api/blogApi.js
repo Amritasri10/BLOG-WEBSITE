@@ -1,13 +1,13 @@
 import {
   noTokenGetRequest,
   getRequest,
-  postRequest,
   putRequest,
-  deleteRequest,
   patchRequest,
-} from "../Helpers";
+  deleteRequest,
+  fileUpload,
+} from "../Helpers/index.js";
 
-// ── Blogs ─────────────────────────────────────────────────────────────────────
+// ── Public ────────────────────────────────────────────────────────────────────
 
 export const getAllBlogsApi = (params = "") =>
   noTokenGetRequest(`/blogs/all-blogs${params}`);
@@ -15,33 +15,30 @@ export const getAllBlogsApi = (params = "") =>
 export const getSingleBlogApi = (id) =>
   noTokenGetRequest(`/blogs/get-blog/${id}`);
 
-export const getUserBlogsApi = (userId) =>
-  noTokenGetRequest(`/blogs/user-blogs/${userId}`);
+export const getAuthorBlogsApi = (authorId) =>
+  noTokenGetRequest(`/blogs/author/${authorId}`);
 
-export const createBlogApi = (payload) =>
-  postRequest({ url: "/blogs/create-blog", cred: payload });
+// ── Author protected ──────────────────────────────────────────────────────────
+
+export const getMyBlogsApi = () =>
+  getRequest("/blogs/my-blogs");
+
+export const createBlogApi = (formData) =>
+  fileUpload({ url: "/blogs/create", cred: formData });
 
 export const updateBlogApi = (id, payload) =>
-  putRequest({ url: `/blogs/update-blog/${id}`, cred: payload });
+  putRequest({ url: `/blogs/update/${id}`, cred: payload });
 
 export const deleteBlogApi = (id) =>
-  deleteRequest(`/blogs/delete-blog/${id}`);
+  deleteRequest(`/blogs/delete/${id}`);
+
+export const togglePublishApi = (id) =>
+  patchRequest({ url: `/blogs/toggle-publish/${id}`, cred: {} });
+
+// ── User engagement ───────────────────────────────────────────────────────────
 
 export const toggleLikeApi = (id) =>
   patchRequest({ url: `/blogs/like/${id}`, cred: {} });
 
-// ── Categories ────────────────────────────────────────────────────────────────
-
-export const getAllCategoriesApi = () =>
-  noTokenGetRequest("/categories");
-
-// ── Comments ──────────────────────────────────────────────────────────────────
-
-export const getCommentsByBlogApi = (blogId) =>
-  noTokenGetRequest(`/comments/${blogId}`);
-
-export const addCommentApi = (blogId, content) =>
-  postRequest({ url: `/comments/${blogId}`, cred: { content } });
-
-export const deleteCommentApi = (commentId) =>
-  deleteRequest(`/comments/${commentId}`);
+export const toggleSaveApi = (id) =>
+  patchRequest({ url: `/blogs/save/${id}`, cred: {} });

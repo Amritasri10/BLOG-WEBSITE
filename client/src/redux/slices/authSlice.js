@@ -1,47 +1,50 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUserApi, registerUserApi, getProfileApi } from "../../api/authApi";
+import { registerUserApi, registerAuthorApi, loginUserApi, getProfileApi, updateProfileApi, updatePasswordApi } from "../../api/authApi";
 
-export const registerUser = createAsyncThunk(
-  "auth/register",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const { data } = await registerUserApi(payload);
-      return data.data; // { _id, username, email, role, authToken }
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Registration failed");
-    }
-  }
-);
+// ── Thunks ────────────────────────────────────────────────────────────────────
+export const registerUser = createAsyncThunk("auth/registerUser", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await registerUserApi(payload);
+    return data.data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Registration failed"); }
+});
 
-export const loginUser = createAsyncThunk(
-  "auth/login",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const { data } = await loginUserApi(payload);
-      return data.data; // { _id, username, email, role, authToken }
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
-    }
-  }
-);
+export const registerAuthor = createAsyncThunk("auth/registerAuthor", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await registerAuthorApi(payload);
+    return data.data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Author registration failed"); }
+});
 
-export const fetchProfile = createAsyncThunk(
-  "auth/profile",
-  async (_, { rejectWithValue }) => {
-    try {
-      const { data } = await getProfileApi();
-      return data.data.user;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch profile");
-    }
-  }
-);
+export const loginUser = createAsyncThunk("auth/loginUser", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await loginUserApi(payload);
+    return data.data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Login failed"); }
+});
 
-const persist = (user) => {
-  localStorage.setItem("authToken", user.authToken);
-  localStorage.setItem("userId", user._id);
-};
+export const fetchProfile = createAsyncThunk("auth/fetchProfile", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await getProfileApi();
+    return data.data?.user || data.data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Failed to fetch profile"); }
+});
 
+export const updateProfile = createAsyncThunk("auth/updateProfile", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await updateProfileApi(payload);
+    return data.data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Failed to update profile"); }
+});
+
+export const updatePassword = createAsyncThunk("auth/updatePassword", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await updatePasswordApi(payload);
+    return data.message;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || "Failed to update password"); }
+});
+
+// ── Slice ─────────────────────────────────────────────────────────────────────
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -56,45 +59,45 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
       localStorage.removeItem("authToken");
-      localStorage.removeItem("userId");
       localStorage.removeItem("userActivity");
     },
+    clearError(state) { state.error = null; },
   },
   extraReducers: (builder) => {
-    // ── Register → auto-login ─────────────────────────────────────────────────
+    const handleAuth = (state, { payload }) => {
+      state.loading = false;
+      state.isLogin = true;
+      state.user = payload;
+      localStorage.setItem("authToken", payload.authToken);
+    };
+
     builder
-      .addCase(registerUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isLogin = true;
-        state.user = action.payload;
-        persist(action.payload);
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(registerUser.pending,   (s) => { s.loading = true; s.error = null; })
+      .addCase(registerUser.fulfilled, handleAuth)
+      .addCase(registerUser.rejected,  (s, { payload }) => { s.loading = false; s.error = payload; });
+
+    builder
+      .addCase(registerAuthor.pending,   (s) => { s.loading = true; s.error = null; })
+      .addCase(registerAuthor.fulfilled, handleAuth)
+      .addCase(registerAuthor.rejected,  (s, { payload }) => { s.loading = false; s.error = payload; });
+
+    builder
+      .addCase(loginUser.pending,   (s) => { s.loading = true; s.error = null; })
+      .addCase(loginUser.fulfilled, handleAuth)
+      .addCase(loginUser.rejected,  (s, { payload }) => { s.loading = false; s.error = payload; });
+
+    builder
+      .addCase(fetchProfile.fulfilled, (s, { payload }) => { s.user = payload; })
+      .addCase(fetchProfile.rejected,  (s) => {
+        s.isLogin = false; s.user = null;
+        localStorage.removeItem("authToken");
       });
 
-    // ── Login ─────────────────────────────────────────────────────────────────
-    builder
-      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isLogin = true;
-        state.user = action.payload;
-        persist(action.payload);
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-
-    // ── Profile ───────────────────────────────────────────────────────────────
-    builder.addCase(fetchProfile.fulfilled, (state, action) => {
-      state.user = action.payload;
+    builder.addCase(updateProfile.fulfilled, (s, { payload }) => {
+      if (payload) s.user = { ...s.user, ...payload };
     });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

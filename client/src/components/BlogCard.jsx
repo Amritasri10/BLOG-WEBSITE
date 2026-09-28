@@ -1,64 +1,76 @@
-import React from "react";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
-import { red } from "@mui/material/colors";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import useBlog from "../hooks/useBlog";
+import { useDispatch, useSelector } from "react-redux";
+import { Heart, Bookmark } from "lucide-react";
+import toast from "react-hot-toast";
+import { toggleLike, toggleSave } from "../redux/slices/blogSlice";
+import { selectAuth } from "../redux/store";
 
-export default function BlogCard({ title, description, image, username, time, id, isUser }) {
+const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+
+const BlogCard = ({ blog }) => {
   const navigate = useNavigate();
-  const { handleDeleteBlog } = useBlog();
+  const dispatch = useDispatch();
+  const { isLogin } = useSelector(selectAuth);
 
-  const handleEdit = () => navigate(`/blog-details/${id}`);
+  const handleLike = (e) => {
+    e.stopPropagation();
+    if (!isLogin) { toast.error("Login to like"); navigate("/auth"); return; }
+    dispatch(toggleLike(blog._id));
+  };
 
-  const handleDelete = () => handleDeleteBlog(id);
+  const handleSave = (e) => {
+    e.stopPropagation();
+    if (!isLogin) { toast.error("Login to save"); navigate("/auth"); return; }
+    dispatch(toggleSave(blog._id));
+  };
 
   return (
-    <Card
-      sx={{
-        width: "40%",
-        margin: "auto",
-        mt: 2,
-        padding: 2,
-        boxShadow: "5px 5px 10px #ccc",
-        "&:hover": { boxShadow: "10px 10px 20px #ccc" },
-      }}
+    <article
+      onClick={() => navigate(`/blog/${blog._id}`)}
+      className="group flex cursor-pointer flex-col transition duration-300"
     >
-      {isUser && (
-        <Box display="flex">
-          <IconButton onClick={handleEdit} sx={{ marginLeft: "auto" }} aria-label="edit">
-            <ModeEditIcon color="info" />
-          </IconButton>
-          <IconButton onClick={handleDelete} aria-label="delete">
-            <DeleteIcon color="error" />
-          </IconButton>
-        </Box>
-      )}
-      <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label={username}>
-            {username?.[0]?.toUpperCase()}
-          </Avatar>
-        }
-        title={username}
-        subheader={time ? new Date(time).toDateString() : ""}
-      />
-      <CardMedia component="img" height="194" image={image} alt={title} />
-      <CardContent>
-        <Typography variant="h6" color="text.secondary">
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      </CardContent>
-    </Card>
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-sm">
+        <img
+          src={blog.image || "/images/placeholder.jpg"}
+          alt={blog.title}
+          className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col pt-3.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#702ae1]">
+          {blog.category || "General"}
+        </span>
+
+        <h3 className="mt-1.5 font-[Manrope] text-xl font-bold leading-snug tracking-tight text-slate-900 transition-colors group-hover:text-[#702ae1]">
+          {blog.title}
+        </h3>
+
+        {blog.subTitle && (
+          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500">{blog.subTitle}</p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between pt-4 text-xs font-medium text-slate-400">
+          <div className="flex items-center gap-2 truncate">
+            <span className="truncate font-semibold text-slate-700">
+              {blog.author?.name || blog.authorName || "Author"}
+            </span>
+            <span>•</span>
+            <span>{formatDate(blog.createdAt)}</span>
+          </div>
+          <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+            <button onClick={handleLike} className="flex items-center gap-1 transition hover:text-rose-500">
+              <Heart className="h-3.5 w-3.5" />
+              <span>{blog.likes?.length || 0}</span>
+            </button>
+            <button onClick={handleSave} className="flex items-center gap-1 transition hover:text-[#702ae1]">
+              <Bookmark className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
   );
-}
+};
+
+export default BlogCard;
