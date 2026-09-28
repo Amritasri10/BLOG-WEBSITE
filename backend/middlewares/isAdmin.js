@@ -1,12 +1,6 @@
-import { apiResponse } from "../utils/apiResponse.js";
+// isAdmin ab authMiddleware.js me move ho gaya hai
+// Ye file backward compatibility ke liye rakhi hai
 
-const isAdmin = (req, res, next) => {
-  if (req.user?.role !== "Admin") {
-    return res
-      .status(403)
-      .json(new apiResponse(403, null, "Access denied: Admin only"));
-  }
-  next();
-};
+import { isAdmin } from "./authMiddleware.js";
 
 export { isAdmin };

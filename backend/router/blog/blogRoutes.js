@@ -2,25 +2,35 @@ import { Router } from "express";
 import {
   getAllBlogs,
   getSingleBlog,
+  getAuthorBlogs,
   createBlog,
   updateBlog,
   deleteBlog,
-  getUserBlogs,
+  getMyBlogs,
+  togglePublish,
   toggleLike,
+  toggleSave,
 } from "../../controllers/blog/blogController.js";
-import { verifyJWT } from "../../middlewares/authMiddleware.js";
+import { verifyJWT, isAuthor } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 
-// ── Public ────────────────────────────────────────────────────────────────────
+// ══ PUBLIC ════════════════════════════════════════════════════════════════════
 router.get("/all-blogs", getAllBlogs);
 router.get("/get-blog/:id", getSingleBlog);
-router.get("/user-blogs/:userId", getUserBlogs);
+router.get("/author/:authorId", getAuthorBlogs);   // Author ki public blogs
 
-// ── Protected ─────────────────────────────────────────────────────────────────
-router.post("/create-blog", verifyJWT, createBlog);
-router.put("/update-blog/:id", verifyJWT, updateBlog);
-router.delete("/delete-blog/:id", verifyJWT, deleteBlog);
+// ══ AUTHOR only ═══════════════════════════════════════════════════════════════
+router.post("/create", verifyJWT, isAuthor, createBlog);
+router.get("/my-blogs", verifyJWT, isAuthor, getMyBlogs);          // apne sare blogs (drafts bhi)
+router.patch("/toggle-publish/:id", verifyJWT, isAuthor, togglePublish); // publish/draft toggle
+
+// ══ AUTHOR (apna) + ADMIN (sab) ═══════════════════════════════════════════════
+router.put("/update/:id", verifyJWT, updateBlog);
+router.delete("/delete/:id", verifyJWT, deleteBlog);
+
+// ══ USER (logged-in) ══════════════════════════════════════════════════════════
 router.patch("/like/:id", verifyJWT, toggleLike);
+router.patch("/save/:id", verifyJWT, toggleSave);
 
 export default router;

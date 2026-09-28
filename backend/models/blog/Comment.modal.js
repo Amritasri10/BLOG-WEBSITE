@@ -17,6 +17,11 @@ const CommentSchema = new mongoose.Schema(
       ref: "Blog",
       required: [true, "Blog is required"],
     },
+    // Author ya Admin approve karega tab public ko dikhega
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

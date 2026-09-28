@@ -4,7 +4,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
-// ─── Register ───────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  PUBLIC — Register & Login
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── Register as User (Reader) ───────────────────────────────────────────────
 export const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -14,11 +18,11 @@ export const registerUser = asyncHandler(async (req, res) => {
       .json(new apiResponse(400, null, "Username, email and password are required"));
   }
 
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+  if (existingUser) {
     return res
       .status(400)
-      .json(new apiResponse(400, null, "Email already registered"));
+      .json(new apiResponse(400, null, "Email or username already registered"));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,7 +31,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     username,
     email,
     password: hashedPassword,
-    role: "User",
+    role: "User", // default reader
   });
 
   const token = user.generateAuthToken();
@@ -47,7 +51,52 @@ export const registerUser = asyncHandler(async (req, res) => {
   );
 });
 
-// ─── Login ──────────────────────────────────────────────────────────────────
+// ─── Register as Author ──────────────────────────────────────────────────────
+export const registerAuthor = asyncHandler(async (req, res) => {
+  const { username, email, password, bio } = req.body;
+
+  if (!username || !email || !password) {
+    return res
+      .status(400)
+      .json(new apiResponse(400, null, "Username, email and password are required"));
+  }
+
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+  if (existingUser) {
+    return res
+      .status(400)
+      .json(new apiResponse(400, null, "Email or username already registered"));
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const author = await User.create({
+    username,
+    email,
+    password: hashedPassword,
+    bio: bio || "",
+    role: "Author",
+  });
+
+  const token = author.generateAuthToken();
+
+  return res.status(201).json(
+    new apiResponse(
+      201,
+      {
+        _id: author._id,
+        username: author.username,
+        email: author.email,
+        role: author.role,
+        bio: author.bio,
+        authToken: token,
+      },
+      "Author registered successfully"
+    )
+  );
+});
+
+// ─── Login (User / Author / Admin — sab ek hi route) ────────────────────────
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -59,12 +108,16 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json(new apiResponse(400, null, "User not found"));
+    return res
+      .status(400)
+      .json(new apiResponse(400, null, "Invalid email or password"));
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    return res.status(400).json(new apiResponse(400, null, "Invalid password"));
+    return res
+      .status(400)
+      .json(new apiResponse(400, null, "Invalid email or password"));
   }
 
   const token = user.generateAuthToken();
@@ -76,8 +129,9 @@ export const loginUser = asyncHandler(async (req, res) => {
         _id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role,
+        role: user.role,         // frontend isko dekhke redirect karega
         profilePic: user.profilePic,
+        bio: user.bio,
         authToken: token,
       },
       "Login successful"
@@ -85,9 +139,15 @@ export const loginUser = asyncHandler(async (req, res) => {
   );
 });
 
-// ─── Get Profile ─────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  PROTECTED — Profile
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── Get My Profile ───────────────────────────────────────────────────────────
 export const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id)
+    .select("-password")
+    .populate("blogs", "title slug createdAt isPublished");
 
   if (!user) {
     return res.status(404).json(new apiResponse(404, null, "User not found"));
@@ -95,18 +155,17 @@ export const getProfile = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new apiResponse(200, { user, role: user.role }, "Profile fetched successfully"));
+    .json(new apiResponse(200, user, "Profile fetched successfully"));
 });
 
-// ─── Update Profile ──────────────────────────────────────────────────────────
-export const updateUserById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findById(id);
+// ─── Update My Profile ────────────────────────────────────────────────────────
+export const updateProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
   if (!user) {
     return res.status(404).json(new apiResponse(404, null, "User not found"));
   }
 
-  const allowedFields = ["username", "email", "bio", "profilePic"];
+  const allowedFields = ["username", "bio", "profilePic"];
   allowedFields.forEach((key) => {
     if (req.body[key] !== undefined) user[key] = req.body[key];
   });
@@ -135,7 +194,9 @@ export const updatePassword = asyncHandler(async (req, res) => {
 
   const isMatch = await bcrypt.compare(oldPassword, user.password);
   if (!isMatch) {
-    return res.status(400).json(new apiResponse(400, null, "Invalid old password"));
+    return res
+      .status(400)
+      .json(new apiResponse(400, null, "Old password is incorrect"));
   }
 
   user.password = await bcrypt.hash(newPassword, 10);
@@ -146,21 +207,16 @@ export const updatePassword = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, null, "Password updated successfully"));
 });
 
-// ─── Delete User ──────────────────────────────────────────────────────────────
-export const deleteUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findByIdAndDelete(id);
-  if (!user) {
-    return res.status(404).json(new apiResponse(404, null, "User not found"));
-  }
-  return res.status(200).json(new apiResponse(200, null, "User deleted successfully"));
-});
+// ════════════════════════════════════════════════════════════════════════════
+//  ADMIN — User Management
+// ════════════════════════════════════════════════════════════════════════════
 
-// ─── Get All Users (Admin) ────────────────────────────────────────────────────
+// ─── Get All Users (with role filter) ────────────────────────────────────────
 export const getAllUsers = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, search, role, isPagination = "true" } = req.query;
 
   const match = {};
+  // role filter: ?role=User  OR  ?role=Author  OR  ?role=Admin
   if (role) match.role = role;
 
   let pipeline = [{ $match: match }];
@@ -168,9 +224,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   if (search) {
     const regex = new RegExp(search.trim(), "i");
     pipeline.push({
-      $match: {
-        $or: [{ username: regex }, { email: regex }],
-      },
+      $match: { $or: [{ username: regex }, { email: regex }] },
     });
   }
 
@@ -196,7 +250,8 @@ export const getAllUsers = asyncHandler(async (req, res) => {
       {
         users,
         total,
-        totalPages: isPagination === "true" ? Math.ceil(total / Number(limit)) : 1,
+        totalPages:
+          isPagination === "true" ? Math.ceil(total / Number(limit)) : 1,
         currentPage: isPagination === "true" ? Number(page) : null,
       },
       "Users fetched successfully"
@@ -204,7 +259,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   );
 });
 
-// ─── Get User By ID ──────────────────────────────────────────────────────────
+// ─── Get User By ID ───────────────────────────────────────────────────────────
 export const getUserById = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
@@ -222,16 +277,19 @@ export const getUserById = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, user, "User fetched successfully"));
 });
 
-// ─── Update Role (Admin) ──────────────────────────────────────────────────────
+// ─── Update User Role (Admin only) ───────────────────────────────────────────
+// Admin kisi bhi user ko User / Author / Admin bana sakta hai
 export const updateUserRole = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const { role } = req.body;
 
-  const ALLOWED_ROLES = ["User", "Admin"];
+  const ALLOWED_ROLES = ["User", "Author", "Admin"];
   if (!role || !ALLOWED_ROLES.includes(role.trim())) {
     return res
       .status(400)
-      .json(new apiResponse(400, null, `Role must be one of: ${ALLOWED_ROLES.join(", ")}`));
+      .json(
+        new apiResponse(400, null, `Role must be one of: ${ALLOWED_ROLES.join(", ")}`)
+      );
   }
 
   const user = await User.findById(userId);
@@ -244,5 +302,23 @@ export const updateUserRole = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new apiResponse(200, { userId: user._id, role: user.role }, "Role updated successfully"));
+    .json(
+      new apiResponse(
+        200,
+        { userId: user._id, role: user.role },
+        "Role updated successfully"
+      )
+    );
+});
+
+// ─── Delete User (Admin only) ─────────────────────────────────────────────────
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findByIdAndDelete(id);
+  if (!user) {
+    return res.status(404).json(new apiResponse(404, null, "User not found"));
+  }
+  return res
+    .status(200)
+    .json(new apiResponse(200, null, "User deleted successfully"));
 });
