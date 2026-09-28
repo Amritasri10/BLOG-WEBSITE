@@ -39,7 +39,7 @@ const BlogCard = ({ blog }) => {
 
       <div className="flex flex-1 flex-col pt-3.5">
         <span className="text-xs font-bold uppercase tracking-wider text-[#702ae1]">
-          {blog.category || "General"}
+          {blog.category?.name || blog.category || "General"}
         </span>
 
         <h3 className="mt-1.5 font-[Manrope] text-xl font-bold leading-snug tracking-tight text-slate-900 transition-colors group-hover:text-[#702ae1]">
@@ -59,12 +59,12 @@ const BlogCard = ({ blog }) => {
             <span>{formatDate(blog.createdAt)}</span>
           </div>
           <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-            <button onClick={handleLike} className="flex items-center gap-1 transition hover:text-rose-500">
-              <Heart className="h-3.5 w-3.5" />
+            <button onClick={handleLike} className={`flex items-center gap-1 transition ${blog.isLiked ? "text-rose-500" : "hover:text-rose-500"}`}>
+              <Heart className={`h-3.5 w-3.5 ${blog.isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
               <span>{blog.likes?.length || 0}</span>
             </button>
-            <button onClick={handleSave} className="flex items-center gap-1 transition hover:text-[#702ae1]">
-              <Bookmark className="h-3.5 w-3.5" />
+            <button onClick={handleSave} className={`flex items-center gap-1 transition ${blog.isSaved ? "text-[#702ae1]" : "hover:text-[#702ae1]"}`}>
+              <Bookmark className={`h-3.5 w-3.5 ${blog.isSaved ? "fill-[#702ae1] text-[#702ae1]" : ""}`} />
             </button>
           </div>
         </div>

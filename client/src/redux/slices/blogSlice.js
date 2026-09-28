@@ -57,8 +57,42 @@ const blogSlice = createSlice({
       .addCase(updateBlog.fulfilled, (s, { payload }) => { patchBlog(s, payload); })
       .addCase(deleteBlog.fulfilled, (s, { payload }) => { s.myBlogs = s.myBlogs.filter((b) => b._id !== payload); s.blogs = s.blogs.filter((b) => b._id !== payload); })
       .addCase(togglePublish.fulfilled, (s, { payload }) => { patchBlog(s, payload); })
-      .addCase(toggleLike.fulfilled, (s, { payload }) => { patchBlog(s, payload); })
-      .addCase(toggleSave.fulfilled,  (s, { payload }) => { patchBlog(s, payload); });
+      .addCase(toggleLike.fulfilled, (s, { payload, meta }) => {
+        const blogId = meta.arg;
+        const updateList = (list) => {
+          const i = list.findIndex((b) => b._id === blogId);
+          if (i !== -1) {
+            list[i] = {
+              ...list[i],
+              likes: Array(payload.likesCount).fill(null), // count update
+              isLiked: payload.isLiked,
+            };
+          }
+        };
+        updateList(s.blogs);
+        updateList(s.myBlogs);
+        updateList(s.authorBlogs);
+        if (s.currentBlog?._id === blogId) {
+          s.currentBlog = {
+            ...s.currentBlog,
+            likes: Array(payload.likesCount).fill(null),
+            isLiked: payload.isLiked,
+          };
+        }
+      })
+      .addCase(toggleSave.fulfilled, (s, { payload, meta }) => {
+        const blogId = meta.arg;
+        const updateList = (list) => {
+          const i = list.findIndex((b) => b._id === blogId);
+          if (i !== -1) list[i] = { ...list[i], isSaved: payload.isSaved };
+        };
+        updateList(s.blogs);
+        updateList(s.myBlogs);
+        updateList(s.authorBlogs);
+        if (s.currentBlog?._id === blogId) {
+          s.currentBlog = { ...s.currentBlog, isSaved: payload.isSaved };
+        }
+      });
   },
 });
 

@@ -29,17 +29,21 @@ const HomePage = () => {
 
   const filteredBlogs = useMemo(() => {
     return blogs.filter((b) => {
+      const categoryName = b.category?.name || b.category || "";
       if (activeCategory === "All" && !searchInput && blogs.length > 1 && b._id === latestBlog?._id) return false;
       const matchSearch = !searchInput ||
         b.title?.toLowerCase().includes(searchInput.toLowerCase()) ||
-        b.category?.toLowerCase().includes(searchInput.toLowerCase());
-      const matchCategory = activeCategory === "All" || b.category === activeCategory;
+        categoryName?.toLowerCase().includes(searchInput.toLowerCase());
+      const matchCategory = activeCategory === "All" || categoryName === activeCategory;
       return matchSearch && matchCategory;
     });
   }, [blogs, searchInput, activeCategory, latestBlog]);
 
   const visibleCategories = useMemo(() => {
-    const fromBlogs = blogs.map((b) => b.category).filter(Boolean).filter((c, i, a) => a.indexOf(c) === i);
+    const fromBlogs = blogs
+      .map((b) => b.category?.name || b.category)
+      .filter(Boolean)
+      .filter((c, i, a) => a.indexOf(c) === i);
     return ["All", ...BLOG_CATEGORIES.filter((c) => fromBlogs.includes(c)), ...fromBlogs.filter((c) => !BLOG_CATEGORIES.includes(c))].filter((c, i, a) => a.indexOf(c) === i);
   }, [blogs]);
 
@@ -91,7 +95,7 @@ const HomePage = () => {
                   </div>
                 </div>
                 <span className="rounded-full border border-white/25 bg-white/15 px-3.5 py-1 text-xs font-semibold text-white">
-                  {latestBlog.category || "General"}
+                  {latestBlog.category?.name || latestBlog.category || "General"}
                 </span>
               </div>
             </div>
@@ -110,7 +114,7 @@ const HomePage = () => {
         <div className="mb-10 flex flex-col gap-5 border-b border-slate-200/80 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-6 overflow-x-auto pb-px scrollbar-hide">
             {visibleCategories.map((cat) => {
-              const count = cat === "All" ? blogs.length : blogs.filter((b) => b.category === cat).length;
+              const count = cat === "All" ? blogs.length : blogs.filter((b) => (b.category?.name || b.category) === cat).length;
               const active = activeCategory === cat;
               return (
                 <button key={cat} type="button" onClick={() => setActiveCategory(cat)}

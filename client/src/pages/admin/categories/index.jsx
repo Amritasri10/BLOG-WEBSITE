@@ -17,8 +17,9 @@ const AdminCategories = () => {
 
   // ── form state ─────────────────────────────────────────────────────────────
   const [showForm, setShowForm]   = useState(false);
-  const [editTarget, setEditTarget] = useState(null);   // null = create mode, obj = edit mode
+  const [editTarget, setEditTarget] = useState(null);
   const [name, setName]           = useState("");
+  const [isActive, setIsActive]   = useState(true);
   const [saving, setSaving]       = useState(false);
 
   useEffect(() => { dispatch(fetchAllCategories()); }, [dispatch]);
@@ -27,21 +28,22 @@ const AdminCategories = () => {
   const openEdit = (cat) => {
     setEditTarget(cat);
     setName(cat.name);
+    setIsActive(cat.isActive !== false);
     setShowForm(true);
   };
 
-  // ── open create ────────────────────────────────────────────────────────────
   const openCreate = () => {
     setEditTarget(null);
     setName("");
+    setIsActive(true);
     setShowForm(true);
   };
 
-  // ── close form ─────────────────────────────────────────────────────────────
   const closeForm = () => {
     setShowForm(false);
     setEditTarget(null);
     setName("");
+    setIsActive(true);
   };
 
   // ── submit ─────────────────────────────────────────────────────────────────
@@ -51,11 +53,11 @@ const AdminCategories = () => {
     setSaving(true);
 
     if (editTarget) {
-      const res = await dispatch(updateCategory({ id: editTarget._id, payload: { name: name.trim() } }));
+      const res = await dispatch(updateCategory({ id: editTarget._id, payload: { name: name.trim(), isActive } }));
       if (!res.error) { toast.success("Category updated"); closeForm(); }
       else toast.error(res.payload || "Update failed");
     } else {
-      const res = await dispatch(createCategory({ name: name.trim() }));
+      const res = await dispatch(createCategory({ name: name.trim(), isActive }));
       if (!res.error) { toast.success("Category created"); closeForm(); }
       else toast.error(res.payload || "Create failed");
     }
@@ -106,8 +108,8 @@ const AdminCategories = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex items-end gap-3">
-              <div className="flex-1">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
                   Category Name
                 </label>
@@ -121,14 +123,29 @@ const AdminCategories = () => {
                   className="w-full rounded-xl border border-slate-200 bg-[#f3f1ff] px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#702ae1] focus:shadow-[0_0_0_3px_rgba(112,42,225,0.12)]"
                 />
               </div>
-              <button
-                type="submit"
-                disabled={saving || !name.trim()}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#702ae1] px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-              >
-                <LuCheck className="h-4 w-4" />
-                {saving ? "Saving..." : editTarget ? "Update" : "Create"}
-              </button>
+
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="text-sm font-semibold text-slate-700">Active</span>
+                <button
+                  type="button"
+                  onClick={() => setIsActive((p) => !p)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isActive ? "bg-[#702ae1]" : "bg-slate-300"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                </button>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button type="button" onClick={closeForm}
+                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving || !name.trim()}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#702ae1] px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50">
+                  <LuCheck className="h-4 w-4" />
+                  {saving ? "Saving..." : editTarget ? "Update" : "Create"}
+                </button>
+              </div>
             </form>
           </div>
         )}
@@ -144,8 +161,7 @@ const AdminCategories = () => {
                   <tr>
                     <th className="px-5 py-3.5">#</th>
                     <th className="px-5 py-3.5">Name</th>
-                    <th className="px-5 py-3.5 max-sm:hidden">Slug</th>
-                    <th className="px-5 py-3.5 max-sm:hidden">Status</th>
+                    <th className="px-5 py-3.5">Status</th>
                     <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -161,10 +177,7 @@ const AdminCategories = () => {
                           <span className="font-semibold text-slate-900">{cat.name}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 max-sm:hidden">
-                        <span className="font-mono text-xs text-slate-400">{cat.slug}</span>
-                      </td>
-                      <td className="px-5 py-4 max-sm:hidden">
+                      <td className="px-5 py-4">
                         <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${cat.isActive !== false ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
                           {cat.isActive !== false ? "Active" : "Inactive"}
                         </span>
